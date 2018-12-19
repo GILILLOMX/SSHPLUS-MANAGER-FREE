@@ -1,7 +1,7 @@
 #!/bin/bash
-wget 45.7.230.128:81/_script_$/versao -O /bin/versao > /dev/null 2>&1
-wget 45.7.230.128:81/_script_$/list > /dev/null 2>&1
-echo  > /usr/lib/licence > /dev/null 2>&1
+wget https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/versao -O /bin/versao > /dev/null 2>&1
+wget https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/Install/list > /dev/null 2>&1
+wget https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/Install/licence -O /usr/lib/licence > /dev/null 2>&1
 clear
 [[ "$EUID" -ne 0 ]] && echo -e "\033[1;33mDesculpe, \033[1;33mvocê precisa executar como root\033[0m" && rm -rf $HOME/Plus > /dev/null 2>&1 && return 1
 cd $HOME
@@ -50,7 +50,7 @@ echo -e "\033[1;31m≠×≠×≠×≠×≠×≠×≠×≠×[\033[1;33m • \033[
 echo ""
 echo -ne "\033[1;36mGenerar As Key [N/S]:\033[1;37m "; read key
 echo -e "\033[1;31m════════════════════════════════════════════════════\033[0m"
-echo -ne "\033[1;36mAGUARDE \033[1;32m OK !\033[1;37m "
+echo -ne "\033[1;36mAGUARDE... \033[1;32m OK !\033[1;37m "
 chmod +x list ./list > /dev/null 2>&1
 echo ""
 echo -e "\033[1;31m════════════════════════════════════════════════════\033[0m"
