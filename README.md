@@ -18,4 +18,6 @@ apt-get update -y; apt-get upgrade -y; wget https://raw.githubusercontent.com/AA
 =================================================
 TEAM [ ILLUMINATI ⃘⃤꙰✰ ] @El_Gato
 
+[ FULL SCRIPTS ⃘⃤꙰✰ ] && VPS
+
 
