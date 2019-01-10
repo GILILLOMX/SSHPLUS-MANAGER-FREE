@@ -113,7 +113,7 @@ chmod +x /etc/SSHPlus/bot
 wget https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/Modulos/proxy.py -O /etc/SSHPlus/proxy.py > /dev/null 2>&1
 chmod +x /etc/SSHPlus/proxy.py
 wget https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/Install/sshplus -O /usr/lib/sshplus > /dev/null 2>&1
-echo '0' > /etc/SSHPlus/Exp  > /dev/null 2>&1
+echo '0' > /etc/SSHPlus/Exp
 sed -i '3i\127.0.0.1 portalrecarga.vivo.com.br/recarga\' /etc/hosts
 sleep 1
 sed -i '4i\127.0.0.1 d1n212ccp6ldpw.cloudfront.net\' /etc/hosts
