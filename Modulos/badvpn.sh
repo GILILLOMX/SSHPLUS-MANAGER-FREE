@@ -79,13 +79,31 @@ echo ""
    badvpn
  fi
 }
+ram1=$(free -h | grep -i mem | awk {'print $2'})
+ram2=$(free -h | grep -i mem | awk {'print $4'})
+ram3=$(free -h | grep -i mem | awk {'print $3'})
+uso=$(top -bn1 | awk '/Cpu/ { cpu = "" 100 - $8 "%" }; END { print cpu }')
+system=$(cat /etc/issue.net)
 if ps x | grep "udpvpn"|grep -v grep 1>/dev/null 2>/dev/null; then
 statusudp="\033[1;32mATIVADO"
 else
 statusudp="\033[1;31mDESATIVADO"
 fi
 clear
-echo -e "\E[44;1;37m              BADVPN              \E[0m"
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo -e "\E[41;1;37m               ❖ SSHPLUS MANAGER ❖                \E[0m"
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+if [ "$system" ]
+then
+echo -e "\033[1;31mSistema\033[1;37m: \033[1;32m$system     \033[1;31mUso da CPU \033[1;37m[\033[1;32m$uso\033[1;37m]"
+else
+echo -e "\033[1;32mSistema: \033[1;33m[ \033[1;31mNao disponivel \033[1;33m]"
+fi
+echo ""
+echo -e "\033[1;31mMemoria Ram\033[1;37m total: \033[1;32m$ram1  \033[1;37mUsado: \033[1;32m$ram3  \033[1;37mLivre: \033[1;32m$ram2"
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo ""
+echo -e "                   \033[1;33m● \033[1;36mBADVPN \033[1;33m●\033[0m"
 echo ""
 echo -e "\033[1;33mSTATUS\033[1;37m: $statusudp \033[0m"
 echo ""
@@ -94,7 +112,7 @@ echo -e "\033[1;33m[\033[1;31m1\033[1;33m] INICIAR O BADVPN \033[1;33m
 [\033[1;31m3\033[1;33m] VOLTAR \033[1;32m<\033[1;33m<\033[1;31m< \033[1;33m
 [\033[1;31m0\033[1;33m] SAIR \033[1;32m<\033[1;33m<\033[1;31m< \033[0m"
 echo ""
-echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 echo ""
 tput civis
 echo -ne "\033[1;32mOQUE DESEJA FAZER \033[1;33m?\033[1;31m?\033[1;37m "; read x
@@ -152,7 +170,7 @@ if [[ "$resposta" = 's' ]]; then
 	echo ""
 	inst_udp () {
 	cd $HOME
-   wget https://raw.githubusercontent.com/AAAAAEXQOSyIpN2JZ0ehUQ/SSHPLUS-MANAGER-FREE/master/Install/badvpn-udpgw -o /dev/null
+   wget https://www.dropbox.com/s/tgkxdwb03r7w59r/badvpn-udpgw -o /dev/null
    mv -f $HOME/badvpn-udpgw /bin/badvpn-udpgw
    chmod 777 /bin/badvpn-udpgw
 	}

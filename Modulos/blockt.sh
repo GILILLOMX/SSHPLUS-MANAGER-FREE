@@ -1,14 +1,10 @@
 #!/bin/bash
 clear
 IP=$(wget -qO- ipv4.icanhazip.com)
-echo -e "\E[44;1;37m          FIREWALL BLOQUEIO TORRENT          \E[0m"
+arq="/etc/Plus-torrent"
+echo -e "\E[44;1;37m           FIREWALL BLOQUEIO TORRENT           \E[0m"
 echo ""
-if [[ -e /etc/openvpn/openvpn-status.log ]]; then
-	echo -e "\033[1;31mNAO PERMITIDO COM \033[1;32mOPENVPN \033[1;31mEM USO!\033[0m"
-	sleep 2
-	menu
-fi
-if iptables -L |grep 'ESTABLISHED' > /dev/null; then
+if [[ -e "$arq" ]]; then
 	fun_fireoff () {
 		iptables -P INPUT ACCEPT
 		iptables -P OUTPUT ACCEPT
@@ -21,7 +17,8 @@ if iptables -L |grep 'ESTABLISHED' > /dev/null; then
 		iptables -t filter -X
 		iptables -F
 		iptables -X
-		sleep 4
+		rm $arq
+		sleep 3
 	}
 fun_spn1 () {
 	helice () {
@@ -41,68 +38,105 @@ fun_spn1 () {
 	helice
 	echo -e "\e[1DOk"
 }
-echo -ne "\033[1;32mDESEJA REMOVER REGRAS FIREWALL \033[1;31m? \033[1;33m[s/n]:\033[1;37m "; read -e -i n resp
+read -p "$(echo -e "\033[1;32mDESEJA REMOVER REGRAS FIREWALL? \033[1;33m[s/n]:\033[1;37m") " -e -i n resp
 if [[ "$resp" = 's' ]]; then
-echo ""	
-fun_spn1
-echo ""
-echo -e "\033[1;33mTORRENT LIBERADO !\033[0m"
-echo ""
-echo -e "\033[1;32mFIREWALL REMOVIDO COM SUCESSO !"
-sleep 4
-menu
+	echo ""	
+	fun_spn1
+	echo ""
+	echo -e "\033[1;33mTORRENT LIBERADO !\033[0m"
+	echo ""
+	echo -e "\033[1;32mFIREWALL REMOVIDO COM SUCESSO !"
+	echo ""
+	if [[ -e /etc/openvpn/openvpn-status.log ]]; then
+		echo -e "\033[1;31m[\033[1;33m!\033[1;31m]\033[1;33m REINICIE O SISTEMA PRA CONCLUIR"
+		echo ""
+		read -p "$(echo -e "\033[1;32mREINICIAR AGORA \033[1;31m? \033[1;33m[s/n]:\033[1;37m ")" -e -i s respost
+		echo ""
+		if [[ "$respost" = 's' ]]; then
+			echo -ne "\033[1;31mReiniciando" 
+			for i in $(seq 1 1 5); do
+				echo -n "."
+				sleep 01
+				echo -ne ""
+			done
+			reboot
+		fi
+	fi
+	sleep 2
+	menu
 else
 	sleep 1
 	menu
 fi
 else
-echo -ne "\033[1;32mDESEJA APLICAR REGRAS FIREWALL \033[1;31m? \033[1;33m[s/n]:\033[1;37m "; read -e -i n resp
+echo -e "\033[1;31m[\033[1;33m!\033[1;31m]\033[1;33m FUNCAO BETA ULTILIZE POR SUA CONTA EM RISCO"
+echo ""
+read -p "$(echo -ne "\033[1;32mDESEJA APLICAR REGRAS FIREWALL ? \033[1;33m[s/n]:\033[1;37m") " -e -i n resp
 if [[ "$resp" = 's' ]]; then
 echo ""
-echo -ne "\033[1;33mPARA CONTINUAR CONFIRME SEU IP: \033[1;37m"; read -e -i $IP ip
-if [[ -z "$ip" ]];then
+echo -ne "\033[1;33mPARA CONTINUAR CONFIRME SEU IP: \033[1;37m"; read -e -i $IP IP
+if [[ -z "$IP" ]];then
 echo ""
 echo -e "\033[1;31mIP invalido\033[1;32m"
 sleep 1
 echo ""
-read -p "Digite seu IP: " ip
+read -p "Digite seu IP: " IP
 fi
 echo ""
 sleep 1
 fun_fireon () {
-iptables -P INPUT DROP
-iptables -P OUTPUT DROP
-iptables -P FORWARD DROP
-iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+mportas () {
+unset portas
+portas_var=$(lsof -V -i tcp -P -n | grep -v "ESTABLISHED" |grep -v "COMMAND" | grep "LISTEN")
+while read port; do
+var1=$(echo $port | awk '{print $1}') && var2=$(echo $port | awk '{print $9}' | awk -F ":" '{print $2}')
+[[ "$(echo -e $portas|grep "$var1 $var2")" ]] || portas+="$var1 $var2\n"
+done <<< "$portas_var"
+i=1
+echo -e "$portas"
+}
+[[ $(iptables -h|wc -l) -lt 5 ]] && apt-get install iptables -y > /dev/null 2>-1
+NIC=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1)
+echo 'iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
-iptables -t filter -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -p tcp -d $ip --dport 443 -m state --state NEW -j ACCEPT
-iptables -A OUTPUT -p tcp -d $ip --dport 80 -m state --state NEW -j ACCEPT
-iptables -A OUTPUT -p tcp --dport 53 -m state --state NEW -j ACCEPT
-iptables -A OUTPUT -p udp --dport 53 -m state --state NEW -j ACCEPT
-iptables -A OUTPUT -p tcp --dport 67 -m state --state NEW -j ACCEPT
-iptables -A OUTPUT -p udp --dport 67 -m state --state NEW -j ACCEPT
-iptables -A INPUT -p tcp --dport 22 -j ACCEPT
-iptables -A INPUT -p tcp --dport 443 -j ACCEPT
-iptables -A OUTPUT -p tcp --dport 22 -j ACCEPT
-iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT
-iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
-iptables -A INPUT -p tcp --dport 80 -j ACCEPT
-iptables -A INPUT -p tcp --dport 3128 -j ACCEPT
-iptables -A INPUT -p tcp --dport 8799 -j ACCEPT
-iptables -A OUTPUT -p tcp --dport 8080 -j ACCEPT
-iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
-iptables -A OUTPUT -p tcp --dport 3128 -j ACCEPT
-iptables -A OUTPUT -p tcp --dport 8799 -j ACCEPT
-iptables -A FORWARD -p tcp --dport 8080 -j ACCEPT
-iptables -A FORWARD -p tcp --dport 80 -j ACCEPT
-iptables -A FORWARD -p tcp --dport 3128 -j ACCEPT
-iptables -A FORWARD -p tcp --dport 8799 -j ACCEPT
-iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
-iptables -A INPUT -p tcp --dport 10000 -j ACCEPT
-iptables -A OUTPUT -p tcp --dport 10000 -j ACCEPT
-sleep 3
+iptables -t filter -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT' > $arq
+echo 'iptables -A OUTPUT -p tcp --dport 53 -m state --state NEW -j ACCEPT
+iptables -A OUTPUT -p udp --dport 53 -m state --state NEW -j ACCEPT' >> $arq
+echo 'iptables -A OUTPUT -p tcp --dport 67 -m state --state NEW -j ACCEPT
+iptables -A OUTPUT -p udp --dport 67 -m state --state NEW -j ACCEPT' >> $arq
+list_ips=$(mportas|awk '{print $2}')
+while read PORT; do
+echo "iptables -A INPUT -p tcp --dport $PORT -j ACCEPT
+iptables -A INPUT -p udp --dport $PORT -j ACCEPT
+iptables -A OUTPUT -p tcp --dport $PORT -j ACCEPT
+iptables -A OUTPUT -p udp --dport $PORT -j ACCEPT
+iptables -A FORWARD -p tcp --dport $PORT -j ACCEPT
+iptables -A FORWARD -p udp --dport $PORT -j ACCEPT
+iptables -A OUTPUT -p tcp -d $IP --dport $PORT -m state --state NEW -j ACCEPT
+iptables -A OUTPUT -p udp -d $IP --dport $PORT -m state --state NEW -j ACCEPT" >> $arq
+done <<< "$list_ips"
+echo 'iptables -A INPUT -p icmp --icmp-type echo-request -j DROP' >> $arq
+echo 'iptables -A INPUT -p tcp --dport 10000 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 10000 -j ACCEPT' >> $arq
+echo "iptables -t nat -A PREROUTING -i $NIC -p tcp --dport 6881:6889 -j DNAT --to-dest $IP
+iptables -A FORWARD -p tcp -i $NIC --dport 6881:6889 -d $IP -j REJECT
+iptables -A OUTPUT -p tcp --dport 6881:6889 -j DROP
+iptables -A OUTPUT -p udp --dport 6881:6889 -j DROP" >> $arq
+echo 'iptables -A FORWARD -m string --algo bm --string "BitTorrent" -j DROP
+iptables -A FORWARD -m string --algo bm --string "BitTorrent protocol" -j DROP
+iptables -A FORWARD -m string --algo bm --string "peer_id=" -j DROP
+iptables -A FORWARD -m string --algo bm --string ".torrent" -j DROP
+iptables -A FORWARD -m string --algo bm --string "announce.php?passkey=" -j DROP
+iptables -A FORWARD -m string --algo bm --string "torrent" -j DROP
+iptables -A FORWARD -m string --algo bm --string "announce" -j DROP
+iptables -A FORWARD -m string --algo bm --string "info_hash" -j DROP
+iptables -A FORWARD -m string --string "get_peers" --algo bm -j DROP
+iptables -A FORWARD -m string --string "announce_peer" --algo bm -j DROP
+iptables -A FORWARD -m string --string "find_node" --algo bm -j DROP' >> $arq
+sleep 2
+chmod +x $arq
+/etc/Plus-torrent > /dev/null
 }
 fun_spn2 () {
 	helice () {
@@ -127,7 +161,7 @@ echo ""
 echo -e "\033[1;33mBLOQUEIO\033[1;37m TORRENT \033[1;33mAPLICADO !\033[0m"
 echo ""
 echo -e "\033[1;32mFIREWALL APLICADO COM SUCESSO !"
-sleep 4
+sleep 3
 menu
 else
 	sleep 1

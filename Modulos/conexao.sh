@@ -178,12 +178,14 @@ echo ".claro.com.br/
 echo "acl url1 dstdomain -i 127.0.0.1
 acl url2 dstdomain -i localhost
 acl url3 dstdomain -i $ipdovps
+acl url4 dstdomain -i /SSHPLUS?
 acl payload url_regex -i "$var_pay"
 acl all src 0.0.0.0/0
 
 http_access allow url1
 http_access allow url2
 http_access allow url3
+http_access allow url4
 http_access allow payload
 http_access deny all
  
@@ -1387,6 +1389,7 @@ group $GROUPNAME
 persist-key
 persist-tun
 status openvpn-status.log
+management localhost 7505
 verb 3
 crl-verify crl.pem
 client-to-client
@@ -1481,11 +1484,8 @@ proto $PROTOCOL
 sndbuf 0
 rcvbuf 0
 setenv opt method GET
-remote-random
-remote portalrecarga.vivo.com.br/recarga $porta
-remote portalrecarga.vivo.com.br/controle/ $porta
-remote navegue.vivo.com.br/pre/ $porta
-remote navegue.vivo.com.br/controle/ $porta
+remote /SSHPLUS? $porta
+http-proxy-option CUSTOM-HEADER Host portalrecarga.vivo.com.br/recarga
 http-proxy $IP 80
 resolv-retry 5
 nobind
